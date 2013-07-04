@@ -1,0 +1,25 @@
+<html>
+<head><title>Nearby Offices</title></head>
+
+<body>
+
+
+
+
+
+
+
+<p>Offices within {{ jumps }} jumps of {{ tgt }}</p>
+<table>
+<tr><th>Jumps</th><th>Office</th></tr>
+{% for systemlist in systemlist %}
+	<tr><td>{{ systemlist.0 }}</td><td>{{ systemlist.1 }}</td></tr>
+{% endfor %}
+</table>
+
+
+
+</body>
+</html>
+
+

@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta content="text/html; charset=utf-8" />
+<title>{% block title %}Office search{% endblock %}</title>
+
+<style type="text/css">
+body {	font-family: Monaco, monospace;
+	font-size:14px;
+	background-color:#111;
+	margin: 0px;  }
+
+p {	color:#777;
+	font-weight: bold  }
+
+a {	text-decoration:none;
+	color:#CCC  }
+
+a:hover {   color:#FFFFFF  }
+
+#nav {	word-spacing:20px;
+	position:absolute;
+	font-size:15px;
+	left:30px;
+	top:5px;
+	height: 30px;
+	min-width:300px  }
+
+#content {	background-color: #FFFFFF;
+	position:absolute;
+	padding:10px;
+	top:30px;
+	left:30px;
+	width:450px}
+
+#heading {	font-size:16px;
+	text-decoration:underline  }
+
+#right {  text-align:right  }
+</style>
+</head>
+<body>
+
+{% block nav %}
+<div id="nav">
+	<a href="/search_gaterange/">gates </a>
+	<a href="/search_caprange/">lightyears </a>
+</div>
+{% endblock %}
+
+<div id="content">
+	{% block content %}{% endblock %}
+
+</div>
+</body>
+</html>
+

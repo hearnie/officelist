@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tgt }} - gates{% endblock %}
+
+
+
+{% block content %}
+
+  <table border="0">
+    <tr>
+     <th colspan="2" scope="col">The 10 closest offices to {{ target }}</th>
+    </tr>
+    <tr>
+    <td width="60">Ly</td>
+    <td></td>
+  </tr>
+  {% for caprangelist in caprangelist %}
+  <tr>
+    <td>{{ caprangelist.0 }}
+</td>
+    <td>{{ caprangelist.1 }}</td>
+  </tr>
+{% endfor %}
+</table>
+
+
+{% endblock %}
+
+
+

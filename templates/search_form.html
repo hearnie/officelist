@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Search Offices{% endblock %}
+
+
+
+{% block content %}
+
+<div id="head">List by jumps</div>
+
+	<form action="/result/" method="get">
+		<input autofocus="autofocus" type="text" name="target">
+		<input type="submit" value="Search">
+	</form>
+
+{% endblock %}
+
+
+
+
+
