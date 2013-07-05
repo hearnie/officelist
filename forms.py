@@ -10,4 +10,3 @@ class CaprangeForm(forms.Form):
 	
 
 		
-
