@@ -140,7 +140,7 @@ class RANGElinks:
 
 
 
-    def lydist(self,sysA):
+    def lydist(self,sysA,resultcount):
     
         self.beacon = []
         self.beacondist = []
@@ -180,8 +180,11 @@ class RANGElinks:
            self.rangelist[self.i][0] = "%.2f" % self.rangelist[self.i][0]
 
 	# shorten list to 10 results
+	
+	if self.rangelist < resultcount:
+		resultcount = len(self.rangelist)
 	self.output = []
-	for self.j in range(0,10):
+	for self.j in range(0,resultcount):
 		self.output.append(self.rangelist[self.j])	
 	
            

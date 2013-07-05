@@ -3,8 +3,9 @@ from django.template.loader import get_template
 from django.template import Context
 from django.shortcuts import render
 
-from forms import GaterangeForm
+from forms import *
 import eveoffice
+import SysLinks
 from django import forms
 from django.http import HttpResponseRedirect
 
@@ -41,22 +42,21 @@ def search_gaterange(request):
 
 
 def gaterange_result(request):
-	if 1 == 1:
-#	if 'target' in request.GET:
-		form = GaterangeForm(request.POST)
-		if form.is_valid():			
-			jumps = form.cleaned_data['maxjumps']
-			jumpsObj = eveoffice.SYSlinks()
-			systemlist = jumpsObj.gatedist(form.cleaned_data['target'], jumps)
-			template = get_template('gaterange_result.html')
-			tgt = form.cleaned_data['target']
-			html = template.render(Context({'jumps':jumps,'tgt':tgt, 'systemlist':systemlist}))
-			return HttpResponse(html) 
-		else:
-			jumps = 10
-			errors = "Invalid form"
-			template = get_template('gaterange_result.html')
-			html = template.render(Context({'errors':errors}))
+
+	form = GaterangeForm(request.POST)
+	if form.is_valid():			
+		jumps = form.cleaned_data['maxjumps']
+		jumpsObj = eveoffice.SYSlinks()
+		systemlist = jumpsObj.gatedist(form.cleaned_data['target'], jumps)
+		template = get_template('gaterange_result.html')
+		tgt = form.cleaned_data['target']
+		html = template.render(Context({'jumps':jumps,'tgt':tgt, 'systemlist':systemlist}))
+		return HttpResponse(html) 
+	else:
+		jumps = 10
+		errors = "Invalid form"
+		template = get_template('gaterange_result.html')
+		html = template.render(Context({'errors':errors}))
 	return HttpResponse(html)
    
 
@@ -67,15 +67,18 @@ def search_caprange(request):
 
 #caprange search results
 def caprange_result(request):
-	if 'target' in request.GET:
-		target = request.GET['target']
-		jumps = 10
+	form = CaprangeForm(request.GET)
+	if form.is_valid():
+		target = form.cleaned_data['target']
+		resultcount = form.cleaned_data['resultcount']
 		capObj = eveoffice.RANGElinks()
-		caprangelist = capObj.lydist(target)
+		caprangelist = capObj.lydist(target,resultcount)
 		template = get_template('caprange_result.html')
-		caphtml = template.render(Context({'jumps':jumps, 'target':target, 'caprangelist':caprangelist}))
+		caphtml = template.render(Context({'resultcount':resultcount, 'target':target, 'caprangelist':caprangelist}))
 	else:
 		message = 'empty form'
+		template = get_template('caprange_result.html')
+		caphtml = template.render(Context({'target':form}))
 	return HttpResponse(caphtml)
 
 

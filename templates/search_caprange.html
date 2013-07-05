@@ -5,10 +5,16 @@
 
 {% block content %}
 
-<div id="head">List by lightyears</div>
+<div id="head">Search by lightyears</div>
 
 	<form action="/caprange_result/" method="get">
 		<input autofocus="autofocus" type="text" name="target">
+		<select name="resultcount">
+		<option value="10">10 results</option>
+		<option value="20">20 results</option>
+		<option value="30">30 results</option>
+		<option value="40">40 results</option>
+		</select>
 		<input type="submit" value="Search">
 	</form>
 
