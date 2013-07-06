@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Search Offices{% endblock %}
+
+
+
+{% block content %}
+
+
+<div id="head">Search by jumps</div>
+
+	<form action="/gaterange_result/" method="get">
+		<input autofocus="autofocus" value="{{ current_system }}" type="text" name="target">
+		<select name="maxjumps">
+		<option value="8">8 jumps</option>
+		<option value="10">10 jumps</option>
+		<option value="12">12 jumps</option>
+		<option value="14">14 jumps</option>
+		<option value="16">16 jumps</option>
+		</select>		
+		
+		<input type="submit" value="Search">
+	</form>
+
+
+
+{% endblock %}
+
+
+
+
+

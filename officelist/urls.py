@@ -14,14 +14,12 @@ from views import *
 
 urlpatterns = patterns('',
 
-    # Examples:
-    #url(r'^gaterange/(\w{1,15})$', gaterange_result),
-    url(r'^$', search_form),
-    url(r'^result/$', result),
+    url(r'^$', search_gaterange),
     url(r'^search_caprange/$', search_caprange),
     url(r'^caprange_result/$', caprange_result),
     url(r'^search_gaterange/$', search_gaterange),
     url(r'^gaterange_result/$', gaterange_result),
+    url(r'^igb/$', igb),
     #url(r'^caprange_result_addressbar/(\w{1,15})$', caprange_result_addressbar),
     #url(r'^officelist/', include('officelist.foo.urls')),
 

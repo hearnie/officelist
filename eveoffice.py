@@ -3,7 +3,7 @@ import sys
 from operator import itemgetter, attrgetter
 
 
-class SYSlinks:
+class SystemLinks:
     def __init__(self):
         self.con = mdb.connect('localhost', 'msi', 'bongwater', 'sdd');
         
@@ -12,110 +12,111 @@ class SYSlinks:
     
     def sysID(self, sysname):
         with self.con:
-            self.cur = self.con.cursor(mdb.cursors.DictCursor)
-            self.cur.execute("SELECT * FROM mapsolarsystems WHERE solarSystemName = (%s)", (sysname))
-            self.rows = self.cur.fetchone()
-            self.ID = int(self.rows["solarSystemID"])
-            self.startsys = (self.rows["solarSystemName"])
-            return(self.startsys, self.ID)
+            cur = self.con.cursor(mdb.cursors.DictCursor)
+            cur.execute("SELECT * FROM mapsolarsystems WHERE solarSystemName = (%s)", (sysname))
+            rows = cur.fetchone()
+            ID = int(rows["solarSystemID"])
+            startsys = (rows["solarSystemName"])
+            return(startsys, ID)
             
 
            
     def sysLinks(self, sysid):
-        self.linkedsystems = []
+        linkedsystems = []
         with self.con:
-            self.cur = self.con.cursor(mdb.cursors.DictCursor)
-            self.cur.execute("SELECT toSolarSystemID , fromSolarSystemID FROM mapsolarsystemjumps WHERE fromSolarSystemID = (%s)", (sysid))
-            self.rows = self.cur.fetchall()                
-            for self.i in range(len(self.rows)):
-                self.linkedsystems.append(self.rows[self.i])
+            cur = self.con.cursor(mdb.cursors.DictCursor)
+            cur.execute("SELECT toSolarSystemID , fromSolarSystemID FROM mapsolarsystemjumps WHERE fromSolarSystemID = (%s)", (sysid))
+            rows = cur.fetchall()                
+            for row in rows:
+                linkedsystems.append(row)
                                                                                                       
-        return(self.linkedsystems)
+        return(linkedsystems)
 
     def gatedist(self,targetparam,maxjumps):
         
     
     
-        self.pending = [] # only contains the sysID
-        self.current = []
-        self.done = [] # includes sysID and number of jumps
-        self.blank = []
-        self.adjacent = []
-        self.jumps = 0
-        self.currentsystem = []
+        pending = [] # only contains the sysID
+        current = []
+        done = [] # includes sysID and number of jumps
+        blank = []
+        adjacent = []
+        jumps = 0
+        currentsystem = []
         
-        self.tmp2 = []
-        self.inrange = []
+        tmp2 = []
+        inrange = []
         
         
         # lookup our startsystem
-        self.targetlookup = self.sysID(targetparam)
-        self.targetname =  self.targetlookup[0]
-        self.targetID =  self.targetlookup[1]
+        targetlookup = self.sysID(targetparam)
+        targetname =  targetlookup[0]
+        targetID =  targetlookup[1]
         
         
         # read office list, put in the format officepairs[[officename , officeID], [....
-        self.tmp1 = []
-        self.officepairs = []
+        tmp1 = []
+        officepairs = []
         
-        self.officelist = []
+        office_list = []
         with open('systems.txt', 'r') as f:
-                self.officelist = f.readlines()
+                office_list = f.readlines()
         f.close()
+
         # lookup system names/IDs and put them in the appropriate format
-        for self.k in range(len(self.officelist)):
-            self.tmp1= [self.sysID(self.officelist[self.k].rstrip())]
-            self.tmp1 = [self.tmp1[0][0], self.tmp1[0][1]]
-            self.officepairs.append(self.tmp1)   
+        for office in office_list:
+            tmp1= [self.sysID(office.rstrip())]
+            tmp1 = [tmp1[0][0], tmp1[0][1]]
+            officepairs.append(tmp1)   
         ## End reading office list
        
-        self.pending.append(self.targetID)
-        while self.jumps < maxjumps:
+        pending.append(targetID)
+        while jumps < maxjumps:
             
-#            if self.jumps == (maxjumps - 2): ## condition for extending search if nothing found
-#               if len(self.inrange) == 0:
+#            if jumps == (maxjumps - 2): ## condition for extending search if nothing found
+#               if len(inrange) == 0:
 #                    maxjumps = maxjumps + 1
 #                    print "Nothing found, extending search"
-            self.jumps = self.jumps + 1    
-            self.done.append(self.current)        #shift everything left
-            self.current = self.pending        
-            self.pending = self.blank    
+            jumps = jumps + 1    
+            done.append(current)        #shift everything left
+            current = pending        
+            pending = blank    
             
-            for i in range(len(self.current)):                    #take each item in current list
+            for i in range(len(current)):                    #take each item in current list
         
-                self.adjacent = self.blank
-                self.adjacent = self.sysLinks(self.current[i])    #put linked systems in adjacent
-                for j in range(len(self.adjacent)):                #for each item in adjacent
+                adjacent = blank
+                adjacent = self.sysLinks(current[i])    #put linked systems in adjacent
+                for j in range(len(adjacent)):                #for each item in adjacent
         
-                    self.currentsystem = self.adjacent[j]['toSolarSystemID']
-                    if self.current.count(self.currentsystem)    == 0:    #check to see if we looked at it before in this loop
-                        if self.done.count(self.currentsystem) == 0:    #check to see if we looked at it before ever
-                            if self.pending.count(self.currentsystem ) == 0:
-                                self.pending.append(self.currentsystem)    #add it to pending list
+                    currentsystem = adjacent[j]['toSolarSystemID']
+                    if current.count(currentsystem)    == 0:    #check to see if we looked at it before in this loop
+                        if done.count(currentsystem) == 0:    #check to see if we looked at it before ever
+                            if pending.count(currentsystem ) == 0:
+                                pending.append(currentsystem)    #add it to pending list
                                                             
-                                for m in range(len(self.officepairs)):
-                                    if self.officepairs[m][1] == self.currentsystem:
-                                        if self.currentsystem == self.targetID:    #special case if it has an office in startsys
-                                            self.tmp2 = [0 , self.officepairs[m][0]]
-                                            self.inrange.append(self.tmp2)
+                                for m in range(len(officepairs)):
+                                    if officepairs[m][1] == currentsystem:
+                                        if currentsystem == targetID:    #special case if it has an office in startsys
+                                            tmp2 = [0 , officepairs[m][0]]
+                                            inrange.append(tmp2)
                                         else:                                #the normal operation for this stage
-                                            self.tmp2 = [self.jumps , self.officepairs[m][0]]
-                                            self.inrange.append(self.tmp2)
+                                            tmp2 = [jumps , officepairs[m][0]]
+                                            inrange.append(tmp2)
     
         
-        self.inrange.sort()
-        return self.inrange
+        inrange.sort()
+        return inrange
 
 
-class RANGElinks:
+class RangeLinks:
     
     def distcalc(self,x0,x1,y0,y1,z0,z1):
         self.dist = float()
-        self.klightyear = float("9460000000000000")
+        klightyear = float("9460000000000000")
         self.xd = x1 - x0
         self.yd = y1 - y0
         self.zd = z1 - z0
-        self.dist = (((self.xd * self.xd) + (self.yd * self.yd) + (self.zd * self.zd)) ** 0.5) / self.klightyear 
+        self.dist = (((self.xd * self.xd) + (self.yd * self.yd) + (self.zd * self.zd)) ** 0.5) / klightyear 
         return self.dist
     
     
@@ -150,8 +151,8 @@ class RANGElinks:
                 self.beacon = f.readlines()
         f.close()
         # lookup system names/IDs and put them in the appropriate format
-        for self.k in range(len(self.beacon)):
-            self.beacon[self.k] = self.beacon[self.k].rstrip()
+        for k in range(len(self.beacon)):
+            self.beacon[k] = self.beacon[k].rstrip()
  
         ## End reading office list
 

@@ -1,52 +1,30 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.template.loader import get_template
-from django.template import Context
+from django.template import Context, RequestContext
 from django.shortcuts import render
 
 from forms import *
 import eveoffice
-import SysLinks
 from django import forms
-from django.http import HttpResponseRedirect
-
-#current root, first search form
-def search_form(request):
-	return render(request, 'search_form.html')
-
-# first search form result, systems by gate jumps
-def result(request):
-	if 'target' in request.GET:
-		tgt = request.GET['target']
-		jumpsObj = eveoffice.SYSlinks()
-		jumps = 9
-		systemlist = jumpsObj.gatedist(tgt,jumps)
-		template = get_template('result.html')
-		html = template.render(Context({'jumps':jumps,'tgt':tgt, 'systemlist':systemlist}))
-	else:
-		message = 'empty form'
-	return HttpResponse(html)
 
 
-# new gaterange result with validation
+
 def search_gaterange(request):
-	return render(request, 'search_gaterange.html')
-	
-	
-	
-
-#	maxjumps = 8
-#	maxjumps = forms.IntegerField(label='maxjumps', max_value=16, min_value=2, required=False, initial=8)
-#	def clean_targetsystem(self):
-#		targetsystem = self.cleaned_data['targetsystem']
-#		return targetsystem
+	try:
+		current_system = request.META['HTTP_EVE_SOLARSYSTEMNAME']
+	except:
+		current_system = ""
+	template = get_template('search_gaterange.html')
+	html = template.render(Context({'current_system':current_system}))
+	return HttpResponse(html)
 
 
 def gaterange_result(request):
 
-	form = GaterangeForm(request.POST)
+	form = GaterangeForm(request.GET)
 	if form.is_valid():			
 		jumps = form.cleaned_data['maxjumps']
-		jumpsObj = eveoffice.SYSlinks()
+		jumpsObj = eveoffice.SystemLinks()
 		systemlist = jumpsObj.gatedist(form.cleaned_data['target'], jumps)
 		template = get_template('gaterange_result.html')
 		tgt = form.cleaned_data['target']
@@ -60,10 +38,16 @@ def gaterange_result(request):
 	return HttpResponse(html)
    
 
-#form for searching by cap range
 def search_caprange(request):
-	
-	return render(request, 'search_caprange.html')
+	try:
+		current_system = request.META['HTTP_EVE_SOLARSYSTEMNAME']
+	except:
+		current_system = ""
+	template = get_template('search_caprange.html')
+	html = template.render(Context({'current_system':current_system}))
+	return HttpResponse(html)
+
+
 
 #caprange search results
 def caprange_result(request):
@@ -71,7 +55,7 @@ def caprange_result(request):
 	if form.is_valid():
 		target = form.cleaned_data['target']
 		resultcount = form.cleaned_data['resultcount']
-		capObj = eveoffice.RANGElinks()
+		capObj = eveoffice.RangeLinks()
 		caprangelist = capObj.lydist(target,resultcount)
 		template = get_template('caprange_result.html')
 		caphtml = template.render(Context({'resultcount':resultcount, 'target':target, 'caprangelist':caprangelist}))
@@ -79,9 +63,20 @@ def caprange_result(request):
 		message = 'empty form'
 		template = get_template('caprange_result.html')
 		caphtml = template.render(Context({'target':form}))
-	return HttpResponse(caphtml)
+	return HttpResponse(caphtml) 
 
 
+def igb(request):
+	current_system = ""
+	try:
+		current_system = request.META['HTTP_EVE_SOLARSYSTEMNAME']
+		trusted = request.META['HTTP_EVE_TRUSTED']
+
+	except KeyError:
+		trusted = "No"
+	template = get_template('igb.html')
+	html = template.render(Context({'trusted':trusted, 'current_system':current_system}))
+	return HttpResponse(html)
 
 
 
