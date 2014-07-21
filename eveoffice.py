@@ -1,10 +1,12 @@
-import MySQLdb as mdb
+
 import sys
 from operator import itemgetter, attrgetter
+import sqlite3 as lite
 
 
 class SystemLinks:
     def __init__(self):
+#        self.con = mdb.connect('localhost', 'msi', 'bongwater', 'sdd');
 	self.conlite = lite.connect('sdd.sqlite')
         
         
@@ -13,19 +15,18 @@ class SystemLinks:
     def sysID(self, sysname):
         with self.conlite:
             cur = self.conlite.cursor()
-            cur.execute("SELECT * FROM mapsolarsystems WHERE solarSystemName = (%s)", (sysname))
+            cur.execute("SELECT * FROM mapsolarsystems WHERE solarSystemName=? COLLATE NOCASE", (sysname,))
             rows = cur.fetchone()
-            ID = int(rows["solarSystemID"])
-            startsys = (rows["solarSystemName"])
+            ID = int(rows[2]) # column number in table, it goes regionID, constID, systemID, systemname, x, y, z, ...
+            startsys = (rows[3])
             return(startsys, ID)
-            
 
            
     def sysLinks(self, sysid):
         linkedsystems = []
         with self.conlite:
             cur = self.conlite.cursor()
-            cur.execute("SELECT toSolarSystemID , fromSolarSystemID FROM mapsolarsystemjumps WHERE fromSolarSystemID = (%s)", (sysid))
+            cur.execute("SELECT toSolarSystemID , fromSolarSystemID FROM mapsolarsystemjumps WHERE fromSolarSystemID=? COLLATE NOCASE", (sysid,))
             rows = cur.fetchall()                
             for row in rows:
                 linkedsystems.append(row)
@@ -55,20 +56,17 @@ class SystemLinks:
         
         
         # read office list, put in the format officepairs[[officename , officeID], [....
-        tmp1 = []
-        officepairs = []
-        
-        office_list = []
-        with open('systems.txt', 'r') as f:
-                office_list = f.readlines()
-        f.close()
 
-        # lookup system names/IDs and put them in the appropriate format
-        for office in office_list:
-            tmp1= [self.sysID(office.rstrip())]
-            tmp1 = [tmp1[0][0], tmp1[0][1]]
-            officepairs.append(tmp1)   
-        ## End reading office list
+
+	   # read officepairs variable from database
+        cur2 = self.conlite.cursor()
+        cur2.execute("SELECT * FROM OfficeList")
+        dbcontents = cur2.fetchall()
+        tmp3 = []
+        officepairs = []
+        for i in dbcontents:
+            tmp3 = [i[1], i[0]]
+            officepairs.append(tmp3)
        
         pending.append(targetID)
         while jumps < maxjumps:
@@ -88,7 +86,7 @@ class SystemLinks:
                 adjacent = self.sysLinks(current[i])    #put linked systems in adjacent
                 for j in range(len(adjacent)):                #for each item in adjacent
         
-                    currentsystem = adjacent[j]['toSolarSystemID']
+                    currentsystem = adjacent[j][0] # edited from name of column for sqlite
                     if current.count(currentsystem)    == 0:    #check to see if we looked at it before in this loop
                         if done.count(currentsystem) == 0:    #check to see if we looked at it before ever
                             if pending.count(currentsystem ) == 0:
@@ -124,13 +122,13 @@ class RangeLinks:
 	  
 	self.conlite = lite.connect('sdd.sqlite')
         with self.conlite:
-            cur = self.conlite.cursor()
-            self.cur.execute("SELECT * FROM mapsolarsystems WHERE solarSystemName = (%s)", (sysLookup))
+            self.cur = self.conlite.cursor()
+            self.cur.execute("SELECT * FROM mapsolarsystems WHERE solarSystemName=? COLLATE NOCASE", (sysLookup,))
             self.rows = self.cur.fetchone()
-            self._x = float(self.rows["x"])
-            self._y = float(self.rows["y"])
-            self._z = float(self.rows["z"])
-            self.sysname = (self.rows["solarSystemName"])
+            self._x = float(self.rows[4])
+            self._y = float(self.rows[5])
+            self._z = float(self.rows[6])
+            self.sysname = (self.rows[3])
         self.conlite.close()
         return(self.sysname, self._x, self._y, self._z)
     
@@ -147,14 +145,18 @@ class RangeLinks:
         self.beacondist = []
         self.rangelist = []
         self.beacon = []
-        with open('systems.txt', 'r') as f:
-                self.beacon = f.readlines()
-        f.close()
-        # lookup system names/IDs and put them in the appropriate format
-        for k in range(len(self.beacon)):
-            self.beacon[k] = self.beacon[k].rstrip()
- 
-        ## End reading office list
+        
+        self.conlite2 = lite.connect('sdd.sqlite')
+        self.cur2 = self.conlite2.cursor()
+        self.cur2.execute("SELECT solarSystemName FROM OfficeList")
+        self.dbcontents = self.cur2.fetchall()
+        self.j = 0
+        for i in self.dbcontents:
+            self.beacon.append(i[0])
+            self.j += 1
+
+
+
 
 	# short office list for text file troubleshooting.
         #self.beacon = ['Abath', 'Aedald', 'Aeschee', 'Agoze', 'Aivonen', 'Alachene', 'Aldali', 'Aliette']
