@@ -5,14 +5,14 @@ from operator import itemgetter, attrgetter
 
 class SystemLinks:
     def __init__(self):
-        self.con = mdb.connect('localhost', 'msi', 'bongwater', 'sdd');
+	self.conlite = lite.connect('sdd.sqlite')
         
         
 
     
     def sysID(self, sysname):
-        with self.con:
-            cur = self.con.cursor(mdb.cursors.DictCursor)
+        with self.conlite:
+            cur = self.conlite.cursor()
             cur.execute("SELECT * FROM mapsolarsystems WHERE solarSystemName = (%s)", (sysname))
             rows = cur.fetchone()
             ID = int(rows["solarSystemID"])
@@ -23,8 +23,8 @@ class SystemLinks:
            
     def sysLinks(self, sysid):
         linkedsystems = []
-        with self.con:
-            cur = self.con.cursor(mdb.cursors.DictCursor)
+        with self.conlite:
+            cur = self.conlite.cursor()
             cur.execute("SELECT toSolarSystemID , fromSolarSystemID FROM mapsolarsystemjumps WHERE fromSolarSystemID = (%s)", (sysid))
             rows = cur.fetchall()                
             for row in rows:
@@ -122,16 +122,16 @@ class RangeLinks:
     
     def syscoords(self,sysLookup):
 	  
-        self.con = mdb.connect('localhost', 'msi', 'bongwater', 'sdd');
-        with self.con:
-            self.cur = self.con.cursor(mdb.cursors.DictCursor)
+	self.conlite = lite.connect('sdd.sqlite')
+        with self.conlite:
+            cur = self.conlite.cursor()
             self.cur.execute("SELECT * FROM mapsolarsystems WHERE solarSystemName = (%s)", (sysLookup))
             self.rows = self.cur.fetchone()
             self._x = float(self.rows["x"])
             self._y = float(self.rows["y"])
             self._z = float(self.rows["z"])
             self.sysname = (self.rows["solarSystemName"])
-        self.con.close()
+        self.conlite.close()
         return(self.sysname, self._x, self._y, self._z)
     
 
